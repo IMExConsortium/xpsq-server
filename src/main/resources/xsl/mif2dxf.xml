@@ -1,0 +1,507 @@
+<xsl:stylesheet version="1.0"
+   xmlns:mif="http://psi.hupo.org/mi/mif"
+   xmlns:dxf="http://dip.doe-mbi.ucla.edu/services/dxf14"
+   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" >
+
+<!-- ======================================================================= -->
+<!-- XSLT transformation  MIF 2.5.x to DXF dataset                           -->
+<!--   parameters:                                                           -->
+<!--       file - file name                                                  -->
+<!--       expand - expansion flag (true/false)                              -->
+<!--                                                                         -->
+<!--  NOTE: bait/prey (ie spoke) expansion only; retains interaction type.   -->
+<!--        The latter should be modified to promote 'association'           -->
+<!--        to 'physical association'.                                       -->
+<!-- ======================================================================= -->
+<!--                                                                         -->
+<!-- record/doc PID: <$file>:<entry#>:<int id>:<evid id>[:prt id:pt id]      -->
+<!--                                                                         -->
+<!-- ======================================================================= -->
+
+  <xsl:param name="debug">false</xsl:param>
+  <xsl:param name="format">2.5.4</xsl:param>
+  <xsl:param name="natext">-</xsl:param>
+
+  <xsl:include href="mif2dxf-entryset.xml"/> 
+  <xsl:include href="xml-to-string.xsl"/> 
+  
+  <!-- ===================================================================== -->
+  <!-- build document/complex-record                                         -->
+  <!-- ===================================================================== -->
+
+  <xsl:template name="complex-bp-record">
+    <xsl:param name="src" />
+    <xsl:param name="fep" />
+    <xsl:param name="evd" />
+    <xsl:param name="int" />
+    <xsl:param name="aprt" />
+    <xsl:param name="bprt" />
+    <xsl:param name="nprt" />
+    <xsl:param name="publisher" />
+ 
+    <xsl:if test="$debug = 'true'">
+     <xsl:text>&#xA;complex-record&#xA;</xsl:text>
+    </xsl:if>  
+        <xsl:for-each select='$aprt'>
+          <xsl:variable name="a" select='.'/>
+            <xsl:for-each select='$bprt'>
+              <xsl:variable name="b" select='.'/>
+
+              <xsl:if test="$debug = 'true'">           
+                <xsl:text>a::b= </xsl:text><xsl:value-of select='$a/@id'/>
+                  <xsl:text>::</xsl:text><xsl:value-of select='$b/@id'/>
+                <xsl:text>&#xA;</xsl:text>
+              </xsl:if>
+ 
+             <xsl:call-template name="record-view">
+               <xsl:with-param name="publisher" select="$publisher" />
+               <xsl:with-param name="src" select="$src" />
+               <xsl:with-param name="fep" select="$fep" />
+               <xsl:with-param name="evd" select="$evd" />
+               <xsl:with-param name="int" select="$int" />
+               <xsl:with-param name="aprt" select="$a" />
+               <xsl:with-param name="bprt" select="$b" />
+               <xsl:with-param name="nprt" select="$nprt" />
+               <xsl:with-param name="debug" select="$debug" />
+               
+             </xsl:call-template> 
+             <!-- <xsl:text>&#xA;</xsl:text> -->
+            </xsl:for-each>
+          </xsl:for-each>
+  </xsl:template>
+
+  <!-- ===================================================================== -->
+
+  <xsl:template name="complex-nn-record">
+    <xsl:param name="src" />
+    <xsl:param name="fep" />
+    <xsl:param name="evd" />
+    <xsl:param name="int" />
+    <xsl:param name="aprt" />
+    <xsl:param name="bprt" />
+    <xsl:param name="nprt" />
+    <xsl:param name="publisher"/>
+
+    <xsl:if test="$debug = 'true'">
+     <xsl:text>&#xA;complex-nn-record&#xA;</xsl:text>
+    </xsl:if>  
+    <xsl:call-template name="record-view">
+      <xsl:with-param name="publisher" select="$publisher" />
+      <xsl:with-param name="src" select="$src" />
+      <xsl:with-param name="fep" select="$fep" />
+      <xsl:with-param name="evd" select="$evd" />
+      <xsl:with-param name="int" select="$int" />
+      <xsl:with-param name="nprt" select="$nprt" />
+      <xsl:with-param name="aprt" select="$aprt" />
+      <xsl:with-param name="bprt" select="$bprt" />
+      <xsl:with-param name="debug" select="$debug" />         
+    </xsl:call-template> 
+    <!-- <xsl:text>&#xA;</xsl:text> -->
+ </xsl:template>
+
+<!-- ======================================================================= -->
+
+  <xsl:template name="record">
+    <xsl:param name="src" />
+    <xsl:param name="fep" />
+    <xsl:param name="evd" />
+    <xsl:param name="int" />
+    <xsl:param name="aprt" />
+    <xsl:param name="bprt" />
+    <xsl:param name="epid">false</xsl:param>
+    <xsl:param name="expand"/>
+     
+    <xsl:if test="$debug = 'true'">
+      <xsl:text>expand=</xsl:text>
+      <xsl:value-of select="$expand"/>
+      <xsl:text>&#xA;</xsl:text>
+    </xsl:if>
+
+    <xsl:for-each select='$aprt'>
+      <xsl:variable name="a" select='.'/>
+        <xsl:for-each select='$bprt'>
+          <xsl:variable name="b" select='.'/>
+
+          <xsl:if test="$debug = 'true'">   
+            <xsl:text>a::b= </xsl:text><xsl:value-of select='$a/@id'/>
+             <xsl:text>::</xsl:text><xsl:value-of select='$b/@id'/>
+            <xsl:text>&#xA;</xsl:text>
+          </xsl:if>
+
+           <xsl:call-template name="record-view">
+             <xsl:with-param name="src" select="$src" />
+             <xsl:with-param name="fep" select="$fep" />
+             <xsl:with-param name="evd" select="$evd" />
+             <xsl:with-param name="int" select="$int" />
+             <xsl:with-param name="a" select="$a" />
+             <xsl:with-param name="b" select="$b" />
+             <xsl:with-param name="debug" select="$debug" />
+             <xsl:with-param name="expand" select="$expand"/>
+           </xsl:call-template> 
+
+        <xsl:text>&#xA;</xsl:text>
+      </xsl:for-each>
+    </xsl:for-each>
+  </xsl:template>
+
+<!-- ======================================================================= -->
+<!-- ======================================================================= -->
+
+  <xsl:template name="record-view">
+    <xsl:param name="publisher">IntAct</xsl:param>
+    <xsl:param name="src" />
+    <xsl:param name="fep" />
+    <xsl:param name="evd" />
+    <xsl:param name="int" />
+    <xsl:param name="aprt" />
+    <xsl:param name="bprt" />
+    <xsl:param name="nprt" />
+    <xsl:param name="expand" />
+    <xsl:param name="debug">true</xsl:param> 
+  
+   <xsl:if test="$debug = 'true'">
+      <xsl:text>binary-view:expand=</xsl:text>
+      <xsl:value-of select="$expand"/>
+      <xsl:text>&#xA;</xsl:text>
+   </xsl:if>
+     
+    <xsl:element name="dxf:node">
+       <xsl:attribute name="ac"/>
+       <xsl:attribute name="ns"><xsl:text>dip</xsl:text></xsl:attribute>  
+       <xsl:attribute name="id"><xsl:value-of select="$evd/@id"/></xsl:attribute>
+      <xsl:element name="dxf:type">
+         <xsl:attribute name="ac"><xsl:text>dxf:0015</xsl:text></xsl:attribute>
+         <xsl:attribute name="ns"><xsl:text>dxf</xsl:text></xsl:attribute>
+         <xsl:attribute name="name"><xsl:text>evidence</xsl:text></xsl:attribute>
+      </xsl:element>
+
+      <xsl:element name="dxf:xrefList"> 
+
+        <!-- pubmed -->  
+        <xsl:element name="dxf:xref">
+          <xsl:attribute name="ac"><xsl:value-of select="$evd/mif:bibref/mif:xref/*[@db='pubmed']/@id"/></xsl:attribute>
+          <xsl:attribute name="ns"><xsl:text>PubMed</xsl:text></xsl:attribute>
+          <xsl:attribute name="type"><xsl:text>described-by</xsl:text></xsl:attribute>
+          <xsl:attribute name="typeAc"><xsl:text>dxf:0014</xsl:text></xsl:attribute>
+          <xsl:attribute name="typeNs"><xsl:text>dxf</xsl:text></xsl:attribute>
+        </xsl:element>
+   
+        <!-- imex -->  
+
+        <xsl:if test="$int/mif:xref/*[@db='imex']/@id">  
+          <xsl:element name="dxf:xref">
+            <xsl:attribute name="ac"><xsl:value-of select="$int/mif:xref/*[@db='imex']/@id"/></xsl:attribute>
+            <xsl:attribute name="ns"><xsl:text>imex</xsl:text></xsl:attribute>
+            <xsl:attribute name="type"><xsl:text>identical-to</xsl:text></xsl:attribute>
+            <xsl:attribute name="typeAc"><xsl:text>dxf:0009</xsl:text></xsl:attribute>
+            <xsl:attribute name="typeNs"><xsl:text>dxf</xsl:text></xsl:attribute>
+          </xsl:element>
+        </xsl:if>
+ 
+        <!-- released by -->  
+        <xsl:element name="dxf:xref">
+          <xsl:attribute name="ac"><xsl:value-of select="$publisher"/></xsl:attribute>
+          <xsl:attribute name="ns"><xsl:text>psi-mi</xsl:text></xsl:attribute>
+          <xsl:attribute name="type"><xsl:text>published-by</xsl:text></xsl:attribute>
+          <xsl:attribute name="typeAc"><xsl:text>dxf:0014</xsl:text></xsl:attribute>
+          <xsl:attribute name="typeNs"><xsl:text>dxf</xsl:text></xsl:attribute>
+        </xsl:element>
+   
+        <!-- curated by -->  
+        <xsl:element name="dxf:xref">
+          <xsl:attribute name="ac"><xsl:value-of select="$src/mif:xref/*[@db='psi-mi']/@id"/></xsl:attribute>
+          <xsl:attribute name="ns"><xsl:text>psi-mi</xsl:text></xsl:attribute>
+          <xsl:attribute name="type"><xsl:text>curated-by</xsl:text></xsl:attribute>
+          <xsl:attribute name="typeAc"><xsl:text>dxf:0014</xsl:text></xsl:attribute>
+          <xsl:attribute name="typeNs"><xsl:text>dxf</xsl:text></xsl:attribute>
+        </xsl:element>
+   
+      </xsl:element>
+
+<!--
+                <xref ac="DIP-1E" ns="dip" type="supports" typeAc="dxf:0013" typeNs="dxf"/>
+                  <xref ac="18981409" ns="PubMed" type="described-by" typeAc="dxf:0014" typeNs="dxf"/>
+                  <xref ac="IM-9673-6" ns="imex" type="identical-to" typeAc="dxf:0009" typeNs="dxf"/>
+                  <xref ac="DIP-11730S" ns="dip" type="described-by" typeAc="dxf:0014" typeNs="dxf"/>
+                  <xref ac="MI:0465" ns="dip" type="published-by" typeAc="dxf:0040" typeNs="dxf"/>
+                  <xref ac="MI:0465" ns="dip" type="curated-by" typeAc="dxf:0055" typeNs="dxf"/>
+ 
+-->
+
+
+      <xsl:element name="dxf:attrList">
+         
+         <!-- interaction type -->
+
+        <xsl:element name="dxf:attr">
+          <xsl:attribute name="ac"><xsl:text>dip:0001</xsl:text></xsl:attribute>
+          <xsl:attribute name="ns"><xsl:text>dip</xsl:text></xsl:attribute>
+          <xsl:attribute name="name"><xsl:text>link-type</xsl:text></xsl:attribute>
+          <xsl:element name="dxf:value">
+           <xsl:attribute name="ac">
+             <xsl:value-of select="$int/mif:interactionType/mif:xref/*[@db='psi-mi']/@id"/>
+           </xsl:attribute>
+           <xsl:attribute name="ns"><xsl:text>psi-mi</xsl:text></xsl:attribute>
+           <xsl:value-of select="$int/mif:interactionType/mif:names/mif:shortLabel/text()"/>
+          </xsl:element> 
+        </xsl:element> 
+
+        <!-- interaction detection -->
+
+        <xsl:element name="dxf:attr">
+          <xsl:attribute name="ac"><xsl:text>MI:0001</xsl:text></xsl:attribute>
+          <xsl:attribute name="ns"><xsl:text>psi-mi</xsl:text></xsl:attribute>
+          <xsl:attribute name="name"><xsl:text>interaction detection method</xsl:text></xsl:attribute>
+          <xsl:element name="dxf:value">
+           <xsl:attribute name="ac">
+             <xsl:value-of select="$evd/mif:interactionDetectionMethod/mif:xref/*[@db='psi-mi']/@id"/>
+           </xsl:attribute>
+           <xsl:attribute name="ns"><xsl:text>psi-mi</xsl:text></xsl:attribute>
+           <xsl:value-of select="$evd/mif:interactionDetectionMethod/mif:names/mif:shortLabel/text()"/>
+          </xsl:element> 
+        </xsl:element> 
+        
+        <!-- source database --> 
+
+        <xsl:element name="dxf:attr">
+          <xsl:attribute name="ac"><xsl:text>dxf:0055</xsl:text></xsl:attribute>
+          <xsl:attribute name="ns"><xsl:text>dxf</xsl:text></xsl:attribute>
+          <xsl:attribute name="name"><xsl:text>curated-by</xsl:text></xsl:attribute>
+          <xsl:element name="dxf:value">
+            <xsl:attribute name="ac"><xsl:value-of select="$src/mif:xref/*[@db='psi-mi']/@id"/></xsl:attribute>
+            <xsl:attribute name="ns"><xsl:text>psi-mi</xsl:text></xsl:attribute>
+            <xsl:value-of select="$src/mif:names/mif:shortLabel/text()"/>
+          </xsl:element>
+        </xsl:element>
+
+        <!-- source record -->
+
+        <xsl:element name="dxf:attr">
+          <xsl:attribute name="ac"><xsl:text>dxf:0049</xsl:text></xsl:attribute>
+          <xsl:attribute name="ns"><xsl:text>dxf</xsl:text></xsl:attribute>
+          <xsl:attribute name="name"><xsl:text>source-document</xsl:text></xsl:attribute>
+          <xsl:element name="dxf:value">
+            <xsl:call-template name="xml-to-string">
+               <xsl:with-param name="node-set" select="$int/../.."/>              
+            </xsl:call-template>
+          </xsl:element>
+        </xsl:element>
+
+
+
+
+
+
+
+       </xsl:element>  
+
+       <xsl:element name="dxf:partList">
+         <xsl:apply-templates select="$int" mode="build-int">
+           <xsl:with-param name="evd" select="$evd"/>
+           <xsl:with-param name="aprt" select="$aprt"/>
+           <xsl:with-param name="bprt" select="$bprt"/>
+           <xsl:with-param name="nprt" select="$nprt"/>
+            
+           <xsl:with-param name="expand" select="$expand"/> 
+         </xsl:apply-templates>
+       </xsl:element>
+
+    </xsl:element>
+
+  </xsl:template>
+
+  <xsl:template match="@*|node()" mode="copy">
+    <xsl:param name="expand" />     
+    <xsl:copy>
+      <xsl:apply-templates select="@*|node()" mode="copy">
+       <xsl:with-param name="expand" select="$expand"/>
+      </xsl:apply-templates>
+    </xsl:copy>
+  </xsl:template>
+
+  <xsl:template match="@*|node()" mode="build-int">       
+     <xsl:param name="expand" />
+     <xsl:param name="aprt" />
+     <xsl:param name="bprt" />
+     <xsl:param name="nprt"/>
+
+     <xsl:choose>      
+
+      <xsl:when test="local-name(.) = 'interactionType' and $expand='spoke'">
+
+        <xsl:element name="interactionType">
+          <xsl:element name="names">
+            <xsl:element name="fullName">
+              <xsl:text>physical association</xsl:text>
+            </xsl:element>
+          </xsl:element>  
+
+          <xsl:element name="xref">
+            <xsl:element name="primaryRef">
+              <xsl:attribute name="db"><xsl:text>psi-mi</xsl:text></xsl:attribute>
+              <xsl:attribute name="dbAc"><xsl:text>MI:0488</xsl:text></xsl:attribute>
+              <xsl:attribute name="id"><xsl:text>MI:0915</xsl:text></xsl:attribute>
+              <xsl:attribute name="refType"><xsl:text>identity</xsl:text></xsl:attribute>
+              <xsl:attribute name="refTypeAc"><xsl:text>MI:0356</xsl:text></xsl:attribute>
+            </xsl:element> 
+          </xsl:element>
+        </xsl:element>
+
+      </xsl:when>
+
+      <xsl:when test="local-name(.) = 'experimentRef'">
+        <xsl:apply-templates select="." mode="experiment-ref">
+          <xsl:with-param name="expand" select="$expand"/>
+        </xsl:apply-templates> 
+      </xsl:when>
+
+      <xsl:when test="local-name(.) = 'interactorRef'">
+        <xsl:apply-templates select="." mode="interactor-ref"/>
+      </xsl:when>
+
+      <xsl:when test="count($nprt) &gt; 0">
+        <xsl:apply-templates select="$nprt" mode="build-part"/>
+      </xsl:when>
+
+      <xsl:when test="count($aprt) &gt; 0 and count($bprt) &gt; 0">
+        <xsl:apply-templates select="$aprt|$bprt" mode="build-part"/>
+      </xsl:when>
+
+      <xsl:otherwise>
+       <xsl:apply-templates select="mif:participantList/*" mode="build-part"/>            
+       
+    <!--
+        <xsl:copy>
+            <xsl:apply-templates select="@*|node()" mode="copy-int">
+              <xsl:with-param name="expand" select="$expand"/>
+            </xsl:apply-templates> 
+        </xsl:copy>
+    -->
+     
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+ <xsl:template match="*" mode="build-part">
+   
+   <xsl:element name="dxf:part">
+     <xsl:attribute name="id"><xsl:text>1</xsl:text></xsl:attribute>
+     <xsl:attribute name="name"><xsl:text>{A}</xsl:text></xsl:attribute>
+     <xsl:element name="dxf:type">
+       <xsl:attribute name="ac"><xsl:text>dxf:0045</xsl:text></xsl:attribute>
+       <xsl:attribute name="ns"><xsl:text>dxf</xsl:text></xsl:attribute>
+       <xsl:attribute name="name"><xsl:text>evidence-node</xsl:text></xsl:attribute>
+     </xsl:element>
+
+      <xsl:element name="dxf:node">
+         <xsl:attribute name="id"/>
+         <xsl:attribute name="ac"/>
+         <xsl:attribute name="ns"/>
+         
+         
+         <xsl:apply-templates select="mif:interactorRef" mode="build-interactor-ref"/>
+         <xsl:apply-templates select="mif:interactor" mode="build-interactor"/>
+ 
+       </xsl:element>    
+   </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="*" mode="build-interactor-ref">
+    <xsl:variable name="id" select="text()"/>
+    <xsl:apply-templates select="//mif:interactor[@id=$id][position() = 1]" mode="build-interactor"/>
+  </xsl:template> 
+
+  <xsl:template match="*" mode="build-interactor">
+
+     <xsl:element name="dxf:type">
+       <xsl:attribute name="ns"><xsl:text>psi-mi</xsl:text></xsl:attribute>
+       <xsl:variable name="itp">
+         <xsl:value-of select="mif:interactorType/mif:xref/*[@db='psi-mi']/@id"/>
+       </xsl:variable>
+       <xsl:attribute name="ac">
+         <xsl:value-of select="mif:interactorType/mif:xref/*[@db='psi-mi']/@id"/>
+       </xsl:attribute>
+       <xsl:attribute name="name">
+        <xsl:value-of select="mif:interactorType/mif:names/mif:shortLabel/text()"/>
+       </xsl:attribute>
+
+     </xsl:element>
+
+     <xsl:element name="dxf:label"><xsl:value-of select="mif:names/mif:shortLabel/text()"/></xsl:element>
+     <xsl:element name="dxf:name"><xsl:value-of select="mif:names/mif:fullName/text()"/></xsl:element>    
+
+     <xsl:element name="dxf:xrefList">
+
+       <xsl:element name="dxf:xref">
+         <xsl:attribute name="ac"><xsl:value-of select="mif:organism/@ncbiTaxId"/></xsl:attribute>
+         <xsl:attribute name="ns"><xsl:text>TaxId</xsl:text></xsl:attribute>
+         <xsl:attribute name="type"><xsl:text>produced-by</xsl:text></xsl:attribute>
+         <xsl:attribute name="typeAc"><xsl:text>dxf:0007</xsl:text></xsl:attribute>
+         <xsl:attribute name="typeNs"><xsl:text>dxf</xsl:text></xsl:attribute>
+
+         <xsl:element name="dxf:node">
+           <xsl:attribute name="ac"><xsl:value-of select="mif:organism/@ncbiTaxId"/></xsl:attribute>
+           <xsl:attribute name="ns"><xsl:text>TaxId</xsl:text></xsl:attribute>
+           <xsl:attribute name="id"><xsl:text>1</xsl:text></xsl:attribute>
+           <xsl:element name="dxf:type">
+                <xsl:attribute name="ac"><xsl:text>dxf:0017</xsl:text></xsl:attribute>
+                <xsl:attribute name="ns"><xsl:text>dxf</xsl:text></xsl:attribute>
+                <xsl:attribute name="id"><xsl:text>1</xsl:text></xsl:attribute>
+           </xsl:element>  
+           <xsl:element name="dxf:label"><xsl:value-of select="mif:organism/mif:names/mif:shotLabel/text()"/></xsl:element>
+           <xsl:element name="dxf:name"><xsl:value-of select="mif:organism/mif:names/mif:fullName/text()"/></xsl:element>
+         </xsl:element>       
+       </xsl:element>
+
+      <xsl:apply-templates select="mif:xref/mif:primaryRef" mode="build-interactor-xref"/>
+       
+     </xsl:element>
+     
+     <xsl:if test="string-length(mif:sequence/text()) &gt; 0">     
+       <xsl:element name="dxf:attrList">
+         <xsl:element name="dxf:attr">
+           <xsl:attribute name="ac"><xsl:text>dip:0008</xsl:text></xsl:attribute>
+           <xsl:attribute name="ns"><xsl:text>dip</xsl:text></xsl:attribute>
+           <xsl:attribute name="id"><xsl:text>sequence</xsl:text></xsl:attribute> 
+           <xsl:element name="dxf:value"><xsl:value-of select="mif:sequence/text()"/></xsl:element>  
+         </xsl:element> 
+       </xsl:element>
+     </xsl:if>
+
+  </xsl:template> 
+
+  <xsl:template match="*" mode="build-interactor-xref">
+    <xsl:element name="dxf:xref">
+      <xsl:choose>
+        <xsl:when test="(@db='refseq' or @db='uniprotkb') and contains(@id,'.')">
+          <xsl:attribute name="ac"><xsl:value-of select="substring-before(@id,'.')"/></xsl:attribute>           
+         </xsl:when>
+         <xsl:otherwise>  
+           <xsl:attribute name="ac"><xsl:value-of select="@id"/></xsl:attribute>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:attribute name="ns"><xsl:value-of select="@db"/></xsl:attribute>
+        <xsl:attribute name="type"><xsl:text>instance-of</xsl:text></xsl:attribute>
+        <xsl:attribute name="typeAc"><xsl:text>dxf:0006</xsl:text></xsl:attribute>
+        <xsl:attribute name="typeNs"><xsl:text>dxf</xsl:text></xsl:attribute>
+     </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="*" mode="interactor-ref">
+    <xsl:variable name="id" select="text()"/>
+    <xsl:apply-templates select="//mif:interactor[@id=$id][position() = 1]" mode="copy"/>
+  </xsl:template> 
+
+  <xsl:template match="*" mode="experiment-ref">
+    <xsl:param name="expand" />
+    <xsl:variable name="id" select="text()"/>
+    <xsl:apply-templates select="//mif:experimentDescription[@id=$id]" mode="copy">
+      <xsl:with-param name="expand" select="$expand"/>
+    </xsl:apply-templates>
+  </xsl:template> 
+
+<!-- ======================================================================= -->
+<!-- ======================================================================= -->
+<!-- ======================================================================= -->
+
+</xsl:stylesheet>

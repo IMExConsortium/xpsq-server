@@ -1,0 +1,54 @@
+{
+  pageConfig:{
+    pathregex:"^/pages/[a-zA-Z0-9_\\-\\.]+$",
+    idregex:"^[a-zA-Z0-9_\\-]+$",
+    pages:{
+      "cover":{
+        active:true,
+        title:"XPSQ Proxy",
+        menudef:"0:0",
+        menusel:"1:1",
+        viewtype:"file-html",
+        viewpath:"/pages/cover.html"
+      },
+      "test":{
+        active:true,
+        title:"XPSQ Proxy: Test Page",
+        menudef:"1:0",
+        menusel:"2:3",
+        urlindex:"pages/test-index.html",
+        showindex:"true",
+        viewtype:"file-html",
+        viewpath:"/pages/test.html"
+      },
+
+      "about":{
+        active:true,
+        title:"XPSQ Proxy: About",
+        menudef:"1:0",
+        menusel:"2",
+        viewtype:"file-html",
+        viewpath:"/pages/about.html"
+      },
+       "help":{
+        active:true,
+        title:"XPSQ Proxy: Help",
+        menudef:"1:0",
+        menusel:"2:1",
+        viewtype:"file-html",
+        viewpath:"/pages/help.html"
+       },
+       "relnote":{
+        active:true,
+        title:"XPSQ Proxy: Help",
+        menudef:"1:0",
+        menusel:"2:3",
+        viewtype:"file-html",
+        viewpath:"/pages/help.html"
+       }
+      } 
+    }
+  }
+}
+
+

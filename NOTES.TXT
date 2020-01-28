@@ -1,0 +1,12 @@
+mi term modifications:
+new term:
+    molecular interaction         - parent of  of MI:0045
+         a particular way two or more molecules affect one another
+
+
+dispose of
+   predicted interaction  - this is a method, not interaction type.
+                            should be replaced by 'molecular interaction' or its child      
+
+
+
