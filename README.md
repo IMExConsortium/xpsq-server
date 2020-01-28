@@ -1,2 +1,3 @@
 # xpsq-server
-eXtensible PSicQuic server
+Extensible PSICQUIC Server
+--------------------------
