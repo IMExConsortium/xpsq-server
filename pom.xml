@@ -34,7 +34,7 @@
     <spring-security-core.version>5.2.1.RELEASE</spring-security-core.version>
     <aspectj.version>1.9.5</aspectj.version>
     
-    <struts2.version>2.5.16</struts2.version>
+    <struts2.version>2.5.22</struts2.version>
     <calimocho.version>2.5.1-SNAPSHOT</calimocho.version>
     
     <solr.version>8.4.1</solr.version> 
