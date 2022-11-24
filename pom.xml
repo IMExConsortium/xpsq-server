@@ -26,7 +26,7 @@
     <cxf.version>3.3.5</cxf.version>
     
     <postgresql.version>42.2.5</postgresql.version>
-    <hibernate-core.version>5.2.17.Final</hibernate-core.version>
+    <hibernate-core.version>5.3.20.Final</hibernate-core.version>
     <derby.version>10.15.1.3</derby.version>
     
     <dip.util>3.0.0</dip.util>    
