@@ -23,7 +23,7 @@
     <jaxws-rt.version>2.3.0</jaxws-rt.version>
     <javax.jws-api.version>1.1</javax.jws-api.version>
     <javax.annotation-api.version>1.3.2</javax.annotation-api.version>        
-    <cxf.version>3.3.5</cxf.version>
+    <cxf.version>3.4.10</cxf.version>
     
     <postgresql.version>42.2.5</postgresql.version>
     <hibernate-core.version>5.2.17.Final</hibernate-core.version>
